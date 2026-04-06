@@ -1,20 +1,20 @@
 public class Musica {
     private String titulo;
-    private String artist;
+    private String artista;
     private int duracao; // em segundos
     private String genero;
 
-    // Construtor Padrão (Sem argumentos)
+    // Construtor Padrão: Usa this() para chamar o principal
     public Musica() {
-        this("Sem Título", "Artista Desconhecido", 0, "Indefinido");
+        this("Sem Título", "Desconhecido", 0, "Geral");
     }
 
-    // Construtor com sobrecarga (Apenas título e artista)
+    // Sobrecarga: Apenas título e artista
     public Musica(String titulo, String artista) {
-        this(titulo, artista, 0, "Pop"); // Chama o construtor parametrizado
+        this(titulo, artista, 0, "Geral");
     }
 
-    // Construtor Parametrizado (Completo)
+    // Construtor Parametrizado (O "Coração" da inicialização)
     public Musica(String titulo, String artista, int duracao, String genero) {
         setTitulo(titulo);
         setArtista(artista);
@@ -26,43 +26,34 @@ public class Musica {
     public String getTitulo() { return titulo; }
     
     public void setTitulo(String titulo) {
-        if (titulo != null && !titulo.trim().isEmpty()) {
-            this.titulo = titulo;
-        } else {
-            this.titulo = "Título Inválido";
-        }
+        this.titulo = (titulo == null || titulo.isBlank()) ? "Título Inválido" : titulo;
     }
 
-    public String getArtista() { return artist; }
+    public String getArtista() { return artista; }
 
     public void setArtista(String artista) {
-        if (artista != null && !artista.trim().isEmpty()) {
-            this.artist = artista;
-        } else {
-            this.artist = "Artista Inválido";
-        }
+        this.artista = (artista == null || artista.isBlank()) ? "Artista Inválido" : artista;
     }
 
     public int getDuracao() { return duracao; }
 
     public void setDuracao(int duracao) {
-        if (duracao >= 0) {
-            this.duracao = duracao;
-        } else {
-            this.duracao = 0;
-            System.out.println("⚠️ Duração não pode ser negativa. Definida como 0.");
-        }
+        this.duracao = Math.max(0, duracao); // Garante que não seja negativo
     }
 
     public String getGenero() { return genero; }
 
     public void setGenero(String genero) {
-        // A validação lógica de gênero pode ser feita aqui ou no StreamingMusica
-        this.genero = (genero != null && !genero.isEmpty()) ? genero : "Geral";
+        this.genero = (genero == null || genero.isBlank()) ? "Geral" : genero;
     }
 
     public String getDuracaoFormatada() {
         return String.format("%d:%02d", duracao / 60, duracao % 60);
+    }
+
+    public void exibir(int numero) {
+        System.out.printf("%d. %s | %s | %s | %s%n", 
+            numero, titulo, artista, getDuracaoFormatada(), genero);
     }
 
     public boolean contemTitulo(String busca) {
@@ -70,11 +61,6 @@ public class Musica {
     }
 
     public boolean contemArtista(String busca) {
-        return artist.toLowerCase().contains(busca.toLowerCase());
-    }
-
-    public void exibir(int numero) {
-        System.out.printf("%d. %s | %s | %s | %s%n",
-                numero, titulo, artist, getDuracaoFormatada(), genero);
+        return artista.toLowerCase().contains(busca.toLowerCase());
     }
 }
