@@ -2,15 +2,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Usuario {
-    private String nome;
-    private final List<Playlist> playlists;
+    protected String nome;
+    protected String email;
+    protected List<Playlist> playlists; // protected para subclasses acessarem
+    protected List<Musica> historicoReproducao;
 
-    public Usuario(String nome) {
+    public Usuario(String nome, String email) {
         this.nome = (nome == null || nome.isBlank()) ? "Convidado" : nome;
+        this.email = email;
         this.playlists = new ArrayList<>();
+        this.historicoReproducao = new ArrayList<>();
     }
 
-    public String getNome() { return nome; }
+    public void reproduzirMusica(Musica musica) {
+        System.out.println("🎵 Reproduzindo: " + musica.getTitulo());
+        historicoReproducao.add(musica);
+    }
+
+    public void exibirHistorico() {
+        System.out.println("\n--- HISTÓRICO DE REPRODUÇÃO ---");
+        if (historicoReproducao.isEmpty()) {
+            System.out.println("Histórico vazio.");
+            return;
+        }
+        for (int i = 0; i < historicoReproducao.size(); i++) {
+            historicoReproducao.get(i).exibir(i + 1);
+        }
+    }
 
     public void criarPlaylist(String nomePlaylist) {
         playlists.add(new Playlist(nomePlaylist));
@@ -37,5 +55,7 @@ public class Usuario {
         return playlists.get(indice - 1);
     }
 
+    public String getNome() { return nome; }
     public int getTotalPlaylists() { return playlists.size(); }
+    public List<Playlist> getPlaylists() { return playlists; }
 }
