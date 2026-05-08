@@ -1,11 +1,5 @@
-package model;
-
 import java.util.ArrayList;
 
-/**
- * Representa uma playlist de músicas.
- * Usada pelos usuários para organizar músicas por gênero ou tema.
- */
 public class Playlist {
 
     private ArrayList<Musicas> musicas;
