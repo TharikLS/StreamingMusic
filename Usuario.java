@@ -1,5 +1,3 @@
-package usuario;
-
 import model.Musicas;
 import model.Playlist;
 
