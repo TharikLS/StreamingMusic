@@ -1,60 +1,98 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+package model;
 
+import java.util.ArrayList;
+
+/**
+ * Representa uma playlist de músicas.
+ * Usada pelos usuários para organizar músicas por gênero ou tema.
+ */
 public class Playlist {
+
+    private ArrayList<Musicas> musicas;
     private String nome;
-    private final List<Musica> musicas;
+
+    private static final int MAX_MUSICAS = 100;
+
+    public Playlist() {
+        this("Sem nome");
+    }
 
     public Playlist(String nome) {
         setNome(nome);
         this.musicas = new ArrayList<>();
     }
 
-    public String getNome() { return nome; }
+    public void adicionarMusicas(Musicas m) {
+        if (m == null) {
+            System.out.println("Música inválida.");
+            return;
+        }
 
-    public void setNome(String nome) {
-        this.nome = (nome == null || nome.isBlank()) ? "Nova Playlist" : nome;
+        if (musicas.size() >= MAX_MUSICAS) {
+            System.out.println("❌ Limite de " + MAX_MUSICAS + " músicas atingido nesta playlist.");
+            return;
+        }
+
+        for (Musicas musica : musicas) {
+            if (musica.getTitulo().equalsIgnoreCase(m.getTitulo())
+                    && musica.getArtista().equalsIgnoreCase(m.getArtista())) {
+                System.out.println("⚠ \"" + m.getTitulo() + "\" já está na playlist.");
+                return;
+            }
+        }
+
+        musicas.add(m);
     }
 
-    public void adicionarMusica(Musica musica) {
-        if (musica != null) {
-            musicas.add(musica);
-            System.out.println("✅ \"" + musica.getTitulo() + "\" adicionada!");
+    public void removerMusica(String titulo) {
+        boolean removido = musicas.removeIf(m -> m.getTitulo().equalsIgnoreCase(titulo));
+
+        if (!removido) {
+            System.out.println("Música \"" + titulo + "\" não encontrada na playlist.");
+        } else {
+            System.out.println("✅ \"" + titulo + "\" removida da playlist.");
         }
     }
 
     public void removerMusica(int indice) {
-        if (validarIndice(indice)) {
-            Musica removida = musicas.remove(indice - 1);
-            System.out.println("🗑️ \"" + removida.getTitulo() + "\" removida.");
-        } else {
-            System.out.println("❌ Índice inválido!");
+        if (indice < 0 || indice >= musicas.size()) {
+            System.out.println("Índice inválido.");
+            return;
         }
+        musicas.remove(indice);
     }
 
     public void listarMusicas() {
-        System.out.println("\n🎵 Playlist: " + nome);
         if (musicas.isEmpty()) {
-            System.out.println("   (Vazia)");
+            System.out.println("Playlist vazia.");
             return;
         }
-        for (int i = 0; i < musicas.size(); i++) {
-            musicas.get(i).exibir(i + 1);
+
+        for (Musicas m : musicas) {
+            System.out.println("  ─────────────────────────");
+            System.out.println(m);
         }
     }
 
-    public int getDuracaoTotal() {
-        return musicas.stream().mapToInt(Musica::getDuracao).sum();
+    // ==================== GETTERS / SETTERS ====================
+
+    public String getPlayNome() { return nome; }
+
+    /** Retorna cópia da lista de músicas (para iteração segura). */
+    public ArrayList<Musicas> getMusicas() {
+        return new ArrayList<>(musicas);
     }
 
     public int getTotalMusicas() { return musicas.size(); }
 
-    public List<Musica> getMusicas() {
-        return Collections.unmodifiableList(musicas);
+    public void setNome(String nome) {
+        if (nome == null || nome.trim().isEmpty())
+            throw new IllegalArgumentException("Nome da Playlist inválido.");
+        this.nome = nome.trim();
     }
 
-    private boolean validarIndice(int indice) {
-        return indice >= 1 && indice <= musicas.size();
+    @Override
+    public String toString() {
+        return "🎵 Playlist: " + nome + " (" + musicas.size() + " música(s))";
     }
 }
