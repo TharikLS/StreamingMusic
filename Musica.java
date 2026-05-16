@@ -1,98 +1,85 @@
-public class Musicas {
+package br.com.streaming.modelo;
 
-    private String titulo;
+import br.com.streaming.util.FormatadorTempo;
+import br.com.streaming.util.Validador;
+
+/**
+ * Representa uma música no sistema de streaming.
+ * Estende ItemReproducao (herda reproduzir/pausar/parar)
+ * e implementa getDuracaoTotal() de forma concreta.
+ */
+public class Musica extends ItemReproducao {
+
     private String artista;
-    private int duracao;
+    private int duracao; // em segundos
     private String genero;
 
     private static final String[] GENEROS_VALIDOS = {
-            "Pop", "Rock", "Jazz", "Eletrônica", "Hip-Hop", "Clássica"
+        "Pop", "Rock", "Jazz", "Eletrônica", "Hip-Hop", "Clássica"
     };
 
-
-    public Musicas(String titulo, String artista, int duracao, String genero){
-        setTitulo(titulo);
+    public Musica(String titulo, String artista, int duracao, String genero) {
+        super(titulo);
         setArtista(artista);
         setDuracao(duracao);
         setGenero(genero);
     }
 
-    // Construtor secundário
-    public Musicas(String titulo, String artista){
-        this(titulo, artista, 100, "Pop"); // evita erro de validação
+    public Musica(String titulo, String artista) {
+        this(titulo, artista, 180, "Pop");
     }
 
-    public void setTitulo(String titulo){
-        if(titulo == null || titulo.trim().isEmpty()){
-            throw new IllegalArgumentException("Titulo invalido.");
-        }
-        this.titulo = titulo.trim();
+    // ==================== IMPLEMENTAÇÃO DE ItemReproducao ====================
+
+    @Override
+    public int getDuracaoTotal() {
+        return duracao;
     }
+
+    @Override
+    public void reproduzir() {
+        super.reproduzir();
+        System.out.println("   🎵 " + artista + " | " + FormatadorTempo.formatar(duracao) + " | " + genero);
+    }
+
+    // ==================== GETTERS / SETTERS ====================
+
+    public String getTitulo()  { return nome; }
+    public String getArtista() { return artista; }
+    public int    getDuracao() { return duracao; }
+    public String getGenero()  { return genero; }
 
     public void setArtista(String artista) {
-        if (artista == null || artista.trim().isEmpty()){
-            throw new IllegalArgumentException("Artista invalido.");
-        }
+        if (!Validador.naoVazio(artista))
+            throw new IllegalArgumentException("Artista inválido.");
         this.artista = artista.trim();
     }
 
     public void setDuracao(int duracao) {
-        if(duracao <= 0 || duracao >= 3600){
-            throw new IllegalArgumentException("Duracao deve ser entre 1 e 3599 segundos.");
-        }
+        if (!Validador.duracaoValida(duracao))
+            throw new IllegalArgumentException("Duração deve ser entre 1 e 3599 segundos.");
         this.duracao = duracao;
     }
 
-    public void setGenero(String genero){
-        if(genero == null || genero.trim().isEmpty()){
-            throw new IllegalArgumentException("Genero invalido.");
-        }
+    public void setGenero(String genero) {
+        if (genero == null || genero.trim().isEmpty())
+            throw new IllegalArgumentException("Gênero inválido.");
 
-        String generoFormatado = genero.trim();
-        boolean valido = false;
-
-        for(String g : GENEROS_VALIDOS){
-            if(g.equalsIgnoreCase(generoFormatado)){
-                this.genero = g; // padroniza
-                valido = true;
-                break;
+        String fmt = genero.trim();
+        for (String g : GENEROS_VALIDOS) {
+            if (g.equalsIgnoreCase(fmt)) {
+                this.genero = g;
+                return;
             }
         }
-
-        if(!valido){
-            throw new IllegalArgumentException(
-                    "Genero invalido. Use: Pop, Rock, Jazz, Eletrônica, Hip-Hop ou Clássica."
-            );
-        }
-    }
-
-    public String getTitulo(){
-        return titulo;
-    }
-
-    public String getArtista(){
-        return artista;
-    }
-
-    public int getDuracao(){
-        return duracao;
-    }
-
-    public String getGenero(){
-        return genero;
+        throw new IllegalArgumentException(
+            "Gênero inválido. Use: Pop, Rock, Jazz, Eletrônica, Hip-Hop ou Clássica."
+        );
     }
 
     @Override
     public String toString() {
-        return "Título: " + titulo +
-                "\nArtista: " + artista +
-                "\nDuração: " + formatarDuracao(duracao) +
-                "\nGênero: " + genero;
-    }
-
-    public static String formatarDuracao(int segundos) {
-        int min = segundos / 60;
-        int seg = segundos % 60;
-        return String.format("%d:%02d", min, seg);
+        return "🎵 " + nome + " | " + artista +
+               " | " + FormatadorTempo.formatar(duracao) + " | " + genero;
     }
 }
