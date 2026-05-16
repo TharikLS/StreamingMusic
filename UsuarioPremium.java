@@ -1,12 +1,18 @@
-import model.Musicas;
-import model.Playlist;
+package br.com.streaming.modelo;
+
+import br.com.streaming.servico.Baixavel;
 
 import java.util.ArrayList;
 
-public class UsuarioPremium extends Usuario {
+/**
+ * Usuário do plano premium.
+ * Vantagens: playlists ilimitadas, alta qualidade 320kbps, sem anúncios, downloads.
+ * Implementa a interface Baixavel — único tipo de usuário com acesso a downloads.
+ */
+public class UsuarioPremium extends Usuario implements Baixavel {
 
     private String plano;
-    private ArrayList<Musicas> musicasBaixadas;
+    private ArrayList<Musica> musicasBaixadas;
 
     private static final String[] PLANOS_VALIDOS = {"Mensal", "Anual", "Familiar"};
 
@@ -19,8 +25,8 @@ public class UsuarioPremium extends Usuario {
     // ==================== IMPLEMENTAÇÃO DOS MÉTODOS ABSTRATOS ====================
 
     @Override
-    public void reproduzirMusica(Musicas musica) {
-        System.out.println("🎵 [ALTA QUALIDADE 320kbps] " + musica.getTitulo()
+    public void reproduzirMusica(Musica musica) {
+        System.out.println("🎵 [320kbps ⭐] " + musica.getTitulo()
                 + " - " + musica.getArtista());
         historicoReproducao.add(musica);
     }
@@ -35,12 +41,12 @@ public class UsuarioPremium extends Usuario {
         System.out.println("\n╔══════════════════════════════╗");
         System.out.println("║    USUÁRIO PREMIUM ⭐         ║");
         System.out.println("╠══════════════════════════════╣");
-        System.out.println("║ Nome:     " + nome);
-        System.out.println("║ Email:    " + email);
-        System.out.println("║ Plano:    " + plano);
-        System.out.println("║ Playlists: " + playlists.size() + " (ilimitadas)");
+        System.out.println("║ Nome:             " + nome);
+        System.out.println("║ Email:            " + email);
+        System.out.println("║ Plano:            " + plano);
+        System.out.println("║ Playlists:        " + playlists.size() + " (ilimitadas)");
         System.out.println("║ Músicas baixadas: " + musicasBaixadas.size());
-        System.out.println("║ Músicas ouvidas: " + historicoReproducao.size());
+        System.out.println("║ Músicas ouvidas:  " + historicoReproducao.size());
         System.out.println("║ ✅ Download disponível");
         System.out.println("║ ✅ Alta qualidade 320kbps");
         System.out.println("║ ✅ Playlists ilimitadas");
@@ -48,42 +54,56 @@ public class UsuarioPremium extends Usuario {
         System.out.println("╚══════════════════════════════╝");
     }
 
-    // ==================== COMPORTAMENTOS EXCLUSIVOS PREMIUM ====================
+    // ==================== IMPLEMENTAÇÃO DA INTERFACE Baixavel ====================
 
-    public void baixarMusica(Musicas musica) {
+    @Override
+    public void baixar(Musica musica) {
         if (musica == null) {
-            System.out.println("Música inválida.");
+            System.out.println("❌ Música inválida.");
             return;
         }
-
-        if (musicasBaixadas.contains(musica)) {
+        if (estaBaixada(musica)) {
             System.out.println("⚠ \"" + musica.getTitulo() + "\" já está baixada.");
             return;
         }
-
         musicasBaixadas.add(musica);
         System.out.println("⬇ \"" + musica.getTitulo() + "\" baixada com sucesso!");
     }
 
+    @Override
+    public void removerDownload(Musica musica) {
+        if (musica == null) return;
+        boolean removido = musicasBaixadas.removeIf(
+            m -> m.getTitulo().equalsIgnoreCase(musica.getTitulo())
+        );
+        if (removido) System.out.println("🗑 \"" + musica.getTitulo() + "\" removida dos downloads.");
+        else          System.out.println("❌ \"" + musica.getTitulo() + "\" não estava baixada.");
+    }
+
+    @Override
+    public boolean estaBaixada(Musica musica) {
+        for (Musica m : musicasBaixadas) {
+            if (m.getTitulo().equalsIgnoreCase(musica.getTitulo())) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int getTamanhoBaixados() {
+        return musicasBaixadas.size();
+    }
+
+    // ==================== COMPORTAMENTOS EXCLUSIVOS ====================
+
     public void listarMusicasBaixadas() {
         System.out.println("\n--- MÚSICAS BAIXADAS ---");
-
         if (musicasBaixadas.isEmpty()) {
             System.out.println("Nenhuma música baixada ainda.");
             return;
         }
-
         for (int i = 0; i < musicasBaixadas.size(); i++) {
-            System.out.println((i + 1) + ". " + musicasBaixadas.get(i).getTitulo()
-                    + " - " + musicasBaixadas.get(i).getArtista());
+            System.out.println((i + 1) + ". " + musicasBaixadas.get(i));
         }
-    }
-
-    /** Cria uma playlist sem limite. */
-    public void criarPlaylist(String nome) {
-        Playlist p = new Playlist(nome);
-        playlists.add(p);
-        System.out.println("✅ Playlist \"" + nome + "\" criada!");
     }
 
     // ==================== GETTERS / SETTERS ====================
@@ -93,10 +113,9 @@ public class UsuarioPremium extends Usuario {
     public void setPlano(String plano) {
         if (plano == null || plano.trim().isEmpty())
             throw new IllegalArgumentException("Plano inválido.");
-
-        String planoFormatado = plano.trim();
+        String fmt = plano.trim();
         for (String p : PLANOS_VALIDOS) {
-            if (p.equalsIgnoreCase(planoFormatado)) {
+            if (p.equalsIgnoreCase(fmt)) {
                 this.plano = p;
                 return;
             }
@@ -104,5 +123,5 @@ public class UsuarioPremium extends Usuario {
         throw new IllegalArgumentException("Plano inválido. Use: Mensal, Anual ou Familiar.");
     }
 
-    public ArrayList<Musicas> getMusicasBaixadas() { return musicasBaixadas; }
+    public ArrayList<Musica> getMusicasBaixadas() { return musicasBaixadas; }
 }
